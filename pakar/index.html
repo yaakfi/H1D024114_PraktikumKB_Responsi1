@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MIND LEGENDS — DIAGNOSIS</title>
+    <!-- Futuristic Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header class="header">
+        <a href="../index.html" class="logo">MIND LEGENDS</a>
+        <nav class="nav-links">
+            <a href="../index.html">LOBBY</a>
+            <a href="../fuzzy/index.html">STRESS ANALYSIS</a>
+            <a href="index.html" class="active">DIAGNOSIS</a>
+        </nav>
+        <div class="header-actions">
+            <button class="icon-btn" id="theme-toggle" title="Toggle Light/Dark Mode">☀️</button>
+            <button class="btn-ready">READY UP</button>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div class="page-header">
+            <div class="mission-badge">MISSION: IDENTIFY</div>
+            <h1>DIAGNOSA AWAL GANGGUAN KESEHATAN MENTAL</h1>
+            <p>Identifying mental health issues based on symptoms. Reclaim your legendary state by facing the internal shadows.</p>
+            
+            <div class="quest-progress">
+                <div class="prog-item">
+                    <div class="prog-val cyan" id="prog-completion">0%</div>
+                    <div class="prog-lbl">COMPLETION</div>
+                </div>
+                <div class="prog-item">
+                    <div class="prog-val">QUEST</div>
+                    <div class="prog-lbl">TYPE</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="layout-grid">
+            <div class="quest-log">
+                <div class="quest-header"><span class="icon">📋</span> QUEST LOG</div>
+                <ul class="quest-steps">
+                    <li class="active"><span class="dot"></span> SYMPTOM LOGGING</li>
+                    <li><span class="dot"></span> AI ANALYSIS</li>
+                    <li><span class="dot"></span> FINAL VERDICT</li>
+                </ul>
+                <div class="quote-box">"Your mental resilience is your strongest armor. Be honest in your report, Legend."</div>
+            </div>
+
+            <div class="system-params">
+                <div class="params-header"><span>SYSTEM PARAMS</span><span class="icon">🎛️</span></div>
+                
+                <div id="symptoms-container">
+                    <div class="symptom-category">
+                        <div class="cat-title"><span class="icon">⚕️</span> PHYSICAL SYMPTOMS</div>
+                        <div class="symptom-grid" id="group-fisik"></div>
+                    </div>
+                    <div class="symptom-category">
+                        <div class="cat-title"><span class="icon">🧠</span> EMOTIONAL CHANGES</div>
+                        <div class="symptom-grid" id="group-emosi"></div>
+                    </div>
+                    <div class="symptom-category">
+                        <div class="cat-title"><span class="icon">👤</span> BEHAVIORAL CHANGES</div>
+                        <div class="symptom-grid" id="group-perilaku"></div>
+                    </div>
+                    <div class="symptom-category">
+                        <div class="cat-title"><span class="icon">🧩</span> COGNITIVE CHANGES</div>
+                        <div class="symptom-grid" id="group-kognitif"></div>
+                    </div>
+                </div>
+
+                <div class="params-footer">
+                    <div class="info-text"><span class="icon">ℹ️</span> Ensure all applicable symptoms are checked for higher accuracy.</div>
+                    <button class="btn-primary" id="btn-diagnose">MULAI DIAGNOSA <span>▶</span></button>
+                </div>
+            </div>
+        </div>
+
+        <div id="results-section" class="results-section hidden">
+            <div class="section-title">ANALYSIS COMPLETE</div>
+            
+            <div class="results-grid">
+                <div class="main-diagnosis panel">
+                    <div class="panel-header-small">PRIMARY DETECTED CONDITION</div>
+                    <div class="diagnosis-name" id="result-name">—</div>
+                    <div class="cf-value"><span>CERTAINTY FACTOR</span><span id="result-cf" class="cyan">0%</span></div>
+                    <div class="desc" id="result-desc"></div>
+                    
+                    <div class="action-box">
+                        <div class="action-title">RECOMMENDED PROTOCOL</div>
+                        <ul id="result-solusi" class="action-list"></ul>
+                    </div>
+                </div>
+
+                <div class="secondary-diagnosis panel">
+                    <div class="panel-header-small">SECONDARY SCANS (OTHER POSSIBILITIES)</div>
+                    <div class="other-list" id="other-results"></div>
+                </div>
+            </div>
+
+            <div class="trace-log panel">
+                <div class="panel-header-small">ENGINE TRACE LOG</div>
+                <table class="data-table">
+                    <thead><tr><th>ID</th><th>RULE MATCHED</th><th>CF_RULE</th><th>CF_COMBINE</th></tr></thead>
+                    <tbody id="trace-table-body"></tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="logo">MIND LEGENDS</div>
+        <div class="copy">VICTORY ATTAINED. © 2024 MIND LEGENDS. CONQUER THE BOSS WITHIN.</div>
+    </footer>
+
+    <script src="pakar.js"></script>
+    <script>
+        document.getElementById('theme-toggle').addEventListener('click', () => {
+            document.body.classList.toggle('light-mode');
+            const isLight = document.body.classList.contains('light-mode');
+            document.getElementById('theme-toggle').textContent = isLight ? '🌙' : '☀️';
+            localStorage.setItem('theme', isLight ? 'light' : 'dark');
+        });
+        if(localStorage.getItem('theme') === 'light') {
+            document.body.classList.add('light-mode');
+            document.getElementById('theme-toggle').textContent = '🌙';
+        }
+    </script>
+</body>
+</html>

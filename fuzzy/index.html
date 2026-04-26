@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MIND LEGENDS — STRESS ANALYSIS</title>
+    <!-- Futuristic Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <header class="header">
+        <a href="../index.html" class="logo">MIND LEGENDS</a>
+        <nav class="nav-links">
+            <a href="../index.html">LOBBY</a>
+            <a href="index.html" class="active">STRESS ANALYSIS</a>
+            <a href="../pakar/index.html">DIAGNOSIS</a>
+        </nav>
+        <div class="header-actions">
+            <button class="icon-btn" id="theme-toggle" title="Toggle Light/Dark Mode">☀️</button>
+            <button class="btn-ready">READY UP</button>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div class="page-title">
+            <h1>TINGKAT STRES MAHASISWA PEMAIN MLBB</h1>
+            <p>Analyze your psychological battle stats. Input your current university and gaming metrics to determine your mental endurance level.</p>
+        </div>
+
+        <div class="layout-grid">
+            <div class="panel-left">
+                <div class="panel-header">
+                    <span>INPUT KONDISI MAHASISWA</span>
+                    <span class="panel-badge">ACTIVE_SESSION_01</span>
+                </div>
+                
+                <div class="slider-group">
+                    <div class="slider-label">
+                        <span>WIN RATE MLBB (SEASON INI)</span>
+                        <div class="slider-value"><span id="value-winrate">45</span>%</div>
+                    </div>
+                    <input type="range" id="slider-winrate" min="0" max="100" value="45">
+                    <div class="slider-footer"><span>LOSE STREAK (0%)</span><span>MYTHICAL GLORY (100%)</span></div>
+                </div>
+
+                <div class="slider-group">
+                    <div class="slider-label">
+                        <span>DURASI BERMAIN PER HARI</span>
+                        <div class="slider-value"><span id="value-durasi">4</span> HRS</div>
+                    </div>
+                    <input type="range" id="slider-durasi" min="0" max="12" step="0.5" value="4">
+                    <div class="slider-footer"><span>CASUAL (0H)</span><span>PRO PLAYER (12H+)</span></div>
+                </div>
+
+                <div class="slider-group">
+                    <div class="slider-label">
+                        <span>BEBAN TUGAS KULIAH AKTIF</span>
+                        <div class="slider-value"><span id="value-tugas">5</span> TASKS</div>
+                    </div>
+                    <input type="range" id="slider-tugas" min="0" max="10" value="5">
+                    <div class="slider-footer"><span>CLEAR (0)</span><span>OVERLOAD (10+)</span></div>
+                </div>
+
+                <button class="btn-primary" id="btn-calculate">HITUNG TINGKAT STRES</button>
+            </div>
+
+            <div class="panel-right">
+                <div class="panel player-panel">
+                    <div class="player-info">
+                        <div class="avatar-img"></div>
+                        <div class="details">
+                            <div class="name">PLAYER_CORE_00</div>
+                            <div class="rank">RANK: MYTHICAL HONOR</div>
+                        </div>
+                    </div>
+                    <div class="hp-bar-segments" id="hp-bar">
+                        <div class="seg filled"></div><div class="seg filled"></div><div class="seg filled"></div>
+                        <div class="seg"></div><div class="seg"></div><div class="seg"></div>
+                    </div>
+                    <div class="hp-label"><span>MENTAL HP</span><span id="hp-value">50 / 100</span></div>
+                </div>
+
+                <div class="panel diagnosis-panel">
+                    <div class="panel-header-small">LIVE DIAGNOSIS STATUS</div>
+                    <div class="stat-row"><span>Win Rate Impact:</span><span class="val text-cyan" id="impact-winrate">PENDING</span></div>
+                    <div class="stat-row"><span>Task Pressure:</span><span class="val text-yellow" id="impact-tugas">PENDING</span></div>
+                    <div class="stat-row"><span>Playtime Load:</span><span class="val text-cyan" id="impact-durasi">PENDING</span></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="results-section" class="results-section hidden">
+            <h2 class="section-title">DETAILED FUZZY LOGS</h2>
+            <div class="card-grid">
+                <div class="card">
+                    <div class="card-title" style="text-align: center;">ANALISIS STRES (CENTROID)</div>
+                    <div class="gauge-container"><canvas id="gauge-canvas"></canvas></div>
+                    <div id="stress-level" class="result-text">—</div>
+                </div>
+                <div class="card">
+                    <div class="card-title">TABEL FUZZIFIKASI</div>
+                    <table class="data-table">
+                        <thead><tr><th>VARIABEL</th><th>HIMPUNAN FUZZY</th><th>DERAJAT (μ)</th></tr></thead>
+                        <tbody id="fuzz-table-body"></tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="card full-width">
+                <div class="card-title">ATURAN YANG TERPICU (FIRED RULES)</div>
+                <table class="data-table">
+                    <thead><tr><th>RULE</th><th>KONDISI (IF)</th><th>OUTPUT (THEN)</th><th>α-PREDIKAT</th></tr></thead>
+                    <tbody id="rules-table-body"></tbody>
+                </table>
+            </div>
+            <div class="card full-width">
+                <div class="card-title">FUNGSI KEANGGOTAAN</div>
+                <div class="charts-grid">
+                    <div class="chart-card"><h4>WIN RATE MLBB</h4><div class="chart-container"><canvas id="chart-winrate"></canvas></div></div>
+                    <div class="chart-card"><h4>DURASI BERMAIN</h4><div class="chart-container"><canvas id="chart-durasi"></canvas></div></div>
+                    <div class="chart-card"><h4>BEBAN TUGAS KULIAH</h4><div class="chart-container"><canvas id="chart-tugas"></canvas></div></div>
+                    <div class="chart-card"><h4>OUTPUT: TINGKAT STRES</h4><div class="chart-container"><canvas id="chart-output"></canvas></div></div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="logo">MIND LEGENDS</div>
+        <div class="copy">VICTORY ATTAINED. © 2024 MIND LEGENDS. CONQUER THE BOSS WITHIN.</div>
+    </footer>
+    <script src="fuzzy.js"></script>
+    <script>
+        document.getElementById('theme-toggle').addEventListener('click', () => {
+            document.body.classList.toggle('light-mode');
+            const isLight = document.body.classList.contains('light-mode');
+            document.getElementById('theme-toggle').textContent = isLight ? '🌙' : '☀️';
+            localStorage.setItem('theme', isLight ? 'light' : 'dark');
+        });
+        if(localStorage.getItem('theme') === 'light') {
+            document.body.classList.add('light-mode');
+            document.getElementById('theme-toggle').textContent = '🌙';
+        }
+    </script>
+</body>
+</html>
