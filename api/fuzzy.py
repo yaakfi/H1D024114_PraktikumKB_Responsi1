@@ -1,113 +1,58 @@
 import json
-import numpy as np
-import skfuzzy as fuzz
-from skfuzzy import control as ctrl
 from http.server import BaseHTTPRequestHandler
 
-# Setup Fuzzy Logic (Mamdani)
-winrate = ctrl.Antecedent(np.arange(0, 101, 1), 'winrate')
-durasi = ctrl.Antecedent(np.arange(0, 13, 0.5), 'durasi')
-tugas = ctrl.Antecedent(np.arange(0, 11, 1), 'tugas')
-stres = ctrl.Consequent(np.arange(0, 101, 1), 'stres')
+def trapmf(x, abcd):
+    a, b, c, d = abcd
+    if x <= a or x >= d: return 0.0
+    if a <= x <= b: return 1.0 if a == b else (x - a) / (b - a)
+    if b <= x <= c: return 1.0
+    if c <= x <= d: return 1.0 if c == d else (d - x) / (d - c)
+    return 0.0
 
-winrate['rendah'] = fuzz.trapmf(winrate.universe, [0, 0, 40, 50])
-winrate['sedang'] = fuzz.trimf(winrate.universe, [45, 55, 65])
-winrate['tinggi'] = fuzz.trapmf(winrate.universe, [60, 70, 100, 100])
-
-durasi['sebentar'] = fuzz.trapmf(durasi.universe, [0, 0, 2, 4])
-durasi['sedang'] = fuzz.trimf(durasi.universe, [3, 5, 7])
-durasi['lama'] = fuzz.trapmf(durasi.universe, [6, 8, 12, 12])
-
-tugas['sedikit'] = fuzz.trapmf(tugas.universe, [0, 0, 2, 4])
-tugas['sedang'] = fuzz.trimf(tugas.universe, [3, 5, 7])
-tugas['banyak'] = fuzz.trapmf(tugas.universe, [6, 8, 10, 10])
-
-stres['rendah'] = fuzz.trapmf(stres.universe, [0, 0, 20, 40])
-stres['sedang'] = fuzz.trimf(stres.universe, [30, 50, 70])
-stres['tinggi'] = fuzz.trapmf(stres.universe, [60, 80, 100, 100])
-
-rules = [
-    ctrl.Rule(winrate['rendah'] & durasi['lama'] & tugas['banyak'], stres['tinggi']),
-    ctrl.Rule(winrate['rendah'] & durasi['lama'] & tugas['sedang'], stres['tinggi']),
-    ctrl.Rule(winrate['rendah'] & durasi['lama'] & tugas['sedikit'], stres['tinggi']),
-    ctrl.Rule(winrate['rendah'] & durasi['sedang'] & tugas['banyak'], stres['tinggi']),
-    ctrl.Rule(winrate['rendah'] & durasi['sedang'] & tugas['sedang'], stres['tinggi']),
-    ctrl.Rule(winrate['rendah'] & durasi['sedang'] & tugas['sedikit'], stres['sedang']),
-    ctrl.Rule(winrate['rendah'] & durasi['sebentar'] & tugas['banyak'], stres['tinggi']),
-    ctrl.Rule(winrate['rendah'] & durasi['sebentar'] & tugas['sedang'], stres['sedang']),
-    ctrl.Rule(winrate['rendah'] & durasi['sebentar'] & tugas['sedikit'], stres['sedang']),
-
-    ctrl.Rule(winrate['sedang'] & durasi['lama'] & tugas['banyak'], stres['tinggi']),
-    ctrl.Rule(winrate['sedang'] & durasi['lama'] & tugas['sedang'], stres['sedang']),
-    ctrl.Rule(winrate['sedang'] & durasi['lama'] & tugas['sedikit'], stres['sedang']),
-    ctrl.Rule(winrate['sedang'] & durasi['sedang'] & tugas['banyak'], stres['tinggi']),
-    ctrl.Rule(winrate['sedang'] & durasi['sedang'] & tugas['sedang'], stres['sedang']),
-    ctrl.Rule(winrate['sedang'] & durasi['sedang'] & tugas['sedikit'], stres['rendah']),
-    ctrl.Rule(winrate['sedang'] & durasi['sebentar'] & tugas['banyak'], stres['sedang']),
-    ctrl.Rule(winrate['sedang'] & durasi['sebentar'] & tugas['sedang'], stres['rendah']),
-    ctrl.Rule(winrate['sedang'] & durasi['sebentar'] & tugas['sedikit'], stres['rendah']),
-
-    ctrl.Rule(winrate['tinggi'] & durasi['lama'] & tugas['banyak'], stres['sedang']),
-    ctrl.Rule(winrate['tinggi'] & durasi['lama'] & tugas['sedang'], stres['sedang']),
-    ctrl.Rule(winrate['tinggi'] & durasi['lama'] & tugas['sedikit'], stres['rendah']),
-    ctrl.Rule(winrate['tinggi'] & durasi['sedang'] & tugas['banyak'], stres['sedang']),
-    ctrl.Rule(winrate['tinggi'] & durasi['sedang'] & tugas['sedang'], stres['rendah']),
-    ctrl.Rule(winrate['tinggi'] & durasi['sedang'] & tugas['sedikit'], stres['rendah']),
-    ctrl.Rule(winrate['tinggi'] & durasi['sebentar'] & tugas['banyak'], stres['sedang']),
-    ctrl.Rule(winrate['tinggi'] & durasi['sebentar'] & tugas['sedang'], stres['rendah']),
-    ctrl.Rule(winrate['tinggi'] & durasi['sebentar'] & tugas['sedikit'], stres['rendah']),
-]
-stres_ctrl = ctrl.ControlSystem(rules)
-
+def trimf(x, abc):
+    a, b, c = abc
+    if x <= a or x >= c: return 0.0
+    if a <= x <= b: return 1.0 if a == b else (x - a) / (b - a)
+    if b <= x <= c: return 1.0 if b == c else (c - x) / (c - b)
+    return 0.0
 
 class handler(BaseHTTPRequestHandler):
     def do_POST(self):
-        content_length = int(self.headers['Content-Length'])
-        post_data = self.rfile.read(content_length)
-        data = json.loads(post_data.decode('utf-8'))
-        
         try:
-            stres_sim = ctrl.ControlSystemSimulation(stres_ctrl)
-            stres_sim.input['winrate'] = float(data.get('winrate', 50))
-            stres_sim.input['durasi'] = float(data.get('durasi', 4))
-            stres_sim.input['tugas'] = float(data.get('tugas', 5))
-            stres_sim.compute()
-            
-            hasil = stres_sim.output['stres']
+            content_length = int(self.headers['Content-Length'])
+            post_data = self.rfile.read(content_length)
+            data = json.loads(post_data.decode('utf-8'))
             
             wr_val = float(data.get('winrate', 50))
             dr_val = float(data.get('durasi', 4))
             tg_val = float(data.get('tugas', 5))
 
-            fuzz_table = []
-            wr_r = fuzz.interp_membership(winrate.universe, winrate['rendah'].mf, wr_val)
-            wr_s = fuzz.interp_membership(winrate.universe, winrate['sedang'].mf, wr_val)
-            wr_t = fuzz.interp_membership(winrate.universe, winrate['tinggi'].mf, wr_val)
-            if wr_r > 0: fuzz_table.append({"var": "WINRATE", "set": "RENDAH", "val": float(wr_r)})
-            if wr_s > 0: fuzz_table.append({"var": "WINRATE", "set": "SEDANG", "val": float(wr_s)})
-            if wr_t > 0: fuzz_table.append({"var": "WINRATE", "set": "TINGGI", "val": float(wr_t)})
+            # 1. Fuzzification
+            wr_r = trapmf(wr_val, [0, 0, 40, 50])
+            wr_s = trimf(wr_val, [45, 55, 65])
+            wr_t = trapmf(wr_val, [60, 70, 100, 100])
 
-            dr_seb = fuzz.interp_membership(durasi.universe, durasi['sebentar'].mf, dr_val)
-            dr_sed = fuzz.interp_membership(durasi.universe, durasi['sedang'].mf, dr_val)
-            dr_lam = fuzz.interp_membership(durasi.universe, durasi['lama'].mf, dr_val)
-            if dr_seb > 0: fuzz_table.append({"var": "DURASI", "set": "SEBENTAR", "val": float(dr_seb)})
-            if dr_sed > 0: fuzz_table.append({"var": "DURASI", "set": "SEDANG", "val": float(dr_sed)})
-            if dr_lam > 0: fuzz_table.append({"var": "DURASI", "set": "LAMA", "val": float(dr_lam)})
+            dr_seb = trapmf(dr_val, [0, 0, 2, 4])
+            dr_sed = trimf(dr_val, [3, 5, 7])
+            dr_lam = trapmf(dr_val, [6, 8, 12, 12])
 
-            tg_sdk = fuzz.interp_membership(tugas.universe, tugas['sedikit'].mf, tg_val)
-            tg_sdg = fuzz.interp_membership(tugas.universe, tugas['sedang'].mf, tg_val)
-            tg_bny = fuzz.interp_membership(tugas.universe, tugas['banyak'].mf, tg_val)
-            if tg_sdk > 0: fuzz_table.append({"var": "TUGAS", "set": "SEDIKIT", "val": float(tg_sdk)})
-            if tg_sdg > 0: fuzz_table.append({"var": "TUGAS", "set": "SEDANG", "val": float(tg_sdg)})
-            if tg_bny > 0: fuzz_table.append({"var": "TUGAS", "set": "BANYAK", "val": float(tg_bny)})
+            tg_sdk = trapmf(tg_val, [0, 0, 2, 4])
+            tg_sdg = trimf(tg_val, [3, 5, 7])
+            tg_bny = trapmf(tg_val, [6, 8, 10, 10])
 
-            rules_log = []
             fuzz_vals = {
                 'winrate': {'rendah': wr_r, 'sedang': wr_s, 'tinggi': wr_t},
                 'durasi': {'sebentar': dr_seb, 'sedang': dr_sed, 'lama': dr_lam},
                 'tugas': {'sedikit': tg_sdk, 'sedang': tg_sdg, 'banyak': tg_bny}
             }
-            
+
+            fuzz_table = []
+            for var_name, var_dict in fuzz_vals.items():
+                for set_name, val in var_dict.items():
+                    if val > 0:
+                        fuzz_table.append({"var": var_name.upper(), "set": set_name.upper(), "val": val})
+
+            # 2. Rule Evaluation
             rule_defs = [
                 (['rendah', 'lama', 'banyak'], 'tinggi'), (['rendah', 'lama', 'sedang'], 'tinggi'), (['rendah', 'lama', 'sedikit'], 'tinggi'),
                 (['rendah', 'sedang', 'banyak'], 'tinggi'), (['rendah', 'sedang', 'sedang'], 'tinggi'), (['rendah', 'sedang', 'sedikit'], 'sedang'),
@@ -120,6 +65,9 @@ class handler(BaseHTTPRequestHandler):
                 (['tinggi', 'sebentar', 'banyak'], 'sedang'), (['tinggi', 'sebentar', 'sedang'], 'rendah'), (['tinggi', 'sebentar', 'sedikit'], 'rendah'),
             ]
 
+            rules_log = []
+            rule_alphas = {'rendah': 0.0, 'sedang': 0.0, 'tinggi': 0.0}
+
             for i, (conds, out) in enumerate(rule_defs):
                 alpha = min(fuzz_vals['winrate'][conds[0]], fuzz_vals['durasi'][conds[1]], fuzz_vals['tugas'][conds[2]])
                 if alpha > 0:
@@ -129,6 +77,31 @@ class handler(BaseHTTPRequestHandler):
                         "then": f"Stres {out}",
                         "alpha": float(alpha)
                     })
+                    if alpha > rule_alphas[out]:
+                        rule_alphas[out] = alpha
+
+            # 3. Defuzzification (Centroid)
+            numerator = 0.0
+            denominator = 0.0
+            
+            for x in range(0, 101):
+                mu_r = trapmf(x, [0, 0, 20, 40])
+                mu_s = trimf(x, [30, 50, 70])
+                mu_t = trapmf(x, [60, 80, 100, 100])
+                
+                cut_r = min(mu_r, rule_alphas['rendah'])
+                cut_s = min(mu_s, rule_alphas['sedang'])
+                cut_t = min(mu_t, rule_alphas['tinggi'])
+                
+                agg = max(cut_r, cut_s, cut_t)
+                
+                numerator += x * agg
+                denominator += agg
+
+            if denominator == 0:
+                hasil = 50.0
+            else:
+                hasil = numerator / denominator
 
             response = {
                 "status": "success",
